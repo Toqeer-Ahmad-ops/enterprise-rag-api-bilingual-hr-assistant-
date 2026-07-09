@@ -1,0 +1,479 @@
+{
+  "name": "Enterprise RAG API - Bilingual HR Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ingest/a269359a-7924-450d-9d7e-24a1ebefa642",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -848,
+        368
+      ],
+      "id": "46a78398-0715-4590-8464-08a78cd84485",
+      "name": "Webhook",
+      "webhookId": "a269359a-7924-450d-9d7e-24a1ebefa642",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DXs2yQA5l1AZT0mH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "rag_logs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "event_type",
+              "fieldValue": "ingestion_error"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "failed"
+            },
+            {
+              "fieldId": "details",
+              "fieldValue": "={{\nJSON.stringify($json)\n}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        576
+      ],
+      "id": "5a455fd9-021b-49ab-a106-0db8228a6c24",
+      "name": "Supabase(Log Error)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "uTK204BB91XD7iWO",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "# Receives POST\n\n## Input\n\ndoc_id\ntitle\ncontent\n\n## Returns\n\nSuccess response",
+        "height": 320,
+        "width": 198,
+        "color": "#FFFFFF"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        32
+      ],
+      "id": "f0448914-cca1-4f81-aba8-e6728c391f98",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Embedding Model\n\n## Gemini Embedding 2\n\n• 768-d vectors\n• Multilingual\n• Retrieval optimized",
+        "height": 240,
+        "width": 230,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        112
+      ],
+      "id": "13fa754d-5df4-4c68-af14-0971c53c76c2",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Vector Database\n\n**Supabase PostgreSQL**\n\n• pgvector\n• HNSW\n• Metadata\n• Audit logs",
+        "height": 224,
+        "width": 198,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        48,
+        144
+      ],
+      "id": "28c1c284-3d75-4730-a292-fb3533bf01a5",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Error Handling\n\n• Retry failures\n• Log errors\n• Continue workflow",
+        "height": 192,
+        "width": 198,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        640
+      ],
+      "id": "66d47af1-63ae-4bfe-8ce6-df81f0081893",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Enterprise RAG API\n\nDay 3 - Document Ingestion\n\n# Stack\n\n• n8n 2.28.7 (Docker)\n• Gemini Embedding 2\n• Supabase pgvector\n• English / Arabic\n• Production Logging",
+        "height": 304,
+        "width": 256,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        208
+      ],
+      "id": "8fd47504-3d44-46f4-a617-db93618a1c6f",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "# Chunk Strategy\n\nChunk Size : 1000\nOverlap : 200\n\n## Optimized for\nsemantic retrieval.",
+        "height": 224,
+        "width": 278,
+        "color": "#FFAE00"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        528
+      ],
+      "id": "e36e693b-4bb0-4097-b244-e607a0d5e71e",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Logs successful ingestions  \n**rag_logs** for audit trail.",
+        "height": 128,
+        "width": 262,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        368,
+        528
+      ],
+      "id": "7ed7e067-163a-444d-a45d-6ca7ba0b377c",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1/models/gemini-embedding-2:embedContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ {   model: \"models/gemini-embedding-2\",   content: {     parts: [       {         text: $json.chunk       }     ]   },   taskType: \"RETRIEVAL_DOCUMENT\",   outputDimensionality: 768 } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -368,
+        368
+      ],
+      "id": "08bc2ed9-bfe5-4bbc-9e4e-055a7c6045ef",
+      "name": "Generate Document Embedding",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "V7LLvidI6N7DOpcZ",
+          "name": "Gemini Toqeer Prod"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.body?.content || \"\";\n\nif (!text) {\n  throw new Error(\"No text provided.\");\n}\n\nif (!$json.body?.doc_id) {\n    throw new Error (\"No doc_id provided.\");\n  \n}\nconst docId = $json.body?.doc_id || \"\";\nconst title = $json.body?.title || \"\";\n\nconst chunkSize = 1000;\nconst overlap = 200;\n\nconst isArabic = /[\\u0600-\\u06FF]/.test(text);\n\nconst chunks = [];\n\nlet chunkId = 1;\n\nfor (let i = 0; i < text.length; i += chunkSize - overlap) {\n\n  const end = Math.min(i + chunkSize, text.length);\n\n  chunks.push({\n    json: {\n      doc_id: docId,\n      chunk_id: chunkId++,\n      title: title,\n      chunk: text.slice(i, end),\n      language: isArabic ? \"ar\" : \"en\",\n      supported_languages: [\"en\", \"ar\"]\n    }\n  });\n\n}\n\nreturn chunks;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        368
+      ],
+      "id": "fc5a2184-b239-4f33-a3e3-fe8fef359176",
+      "name": "Chunk Document"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "preferLast",
+              "overrideEmpty": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -128,
+        384
+      ],
+      "id": "1113253d-0b7f-4244-b432-a367c15c2282",
+      "name": "Merge Chunk + Embedding"
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "tableId": "documents",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "doc_id",
+              "fieldValue": "={{ $json.doc_id }}"
+            },
+            {
+              "fieldId": "chunk_id",
+              "fieldValue": "={{ $json.chunk_id }}"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $json.title }}"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $json.chunk }}"
+            },
+            {
+              "fieldId": "language",
+              "fieldValue": "={{ $json.language }}"
+            },
+            {
+              "fieldId": "supported_languages",
+              "fieldValue": "={{ $json.supported_languages }}"
+            },
+            {
+              "fieldId": "metadata",
+              "fieldValue": "={{ {   source: \"FutureTech Employee Handbook\",   version: \"1.0\",   ingested_by: \"n8n\",   chunk_size: 1000,   overlap: 200 } }}"
+            },
+            {
+              "fieldId": "embedding",
+              "fieldValue": "={{ $json.embedding.values }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        48,
+        384
+      ],
+      "id": "ed5061a0-5c58-4d38-a55e-bd6b368af9a3",
+      "name": "Store Vector in Supabase",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "supabaseApi": {
+          "id": "uTK204BB91XD7iWO",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "tableId": "rag_logs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "event_type",
+              "fieldValue": "ingestion"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "success"
+            },
+            {
+              "fieldId": "details",
+              "fieldValue": "={{\nJSON.stringify({\n  doc_id: $json.doc_id,\n  chunk_id: $json.chunk_id,\n  title: $json.title,\n  language: $json.language,\n  status: \"stored\"\n})\n}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        272,
+        384
+      ],
+      "id": "ae0ae727-3eff-454c-a599-72a4650bd128",
+      "name": "Log Success",
+      "credentials": {
+        "supabaseApi": {
+          "id": "uTK204BB91XD7iWO",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Number of processed chunks\nconst chunksProcessed = $input.all().length;\n\n// Get the original request from the Webhook node\nconst originalRequest = $('Webhook').first().json.body;\n\nreturn [\n  {\n    json: {\n      success: true,\n      doc_id: originalRequest.doc_id,\n      title: originalRequest.title,\n      chunks_processed: chunksProcessed,\n      message: \"Document ingested successfully.\",\n      timestamp: new Date().toISOString()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        384
+      ],
+      "id": "bd46439c-b4d9-4637-bab5-12b12886d725",
+      "name": "Format Success Response"
+    },
+    {
+      "parameters": {
+        "content": "# API Response\n\n## Returns\n\n✓ doc_id\n✓ chunks_processed\n✓ timestamp",
+        "height": 272,
+        "width": 198,
+        "color": "#032E15"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        96
+      ],
+      "id": "6c9f0648-d018-4778-b345-c29e1e26e8b8",
+      "name": "Sticky Note7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Chunk Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase(Log Error)": {
+      "main": [
+        [
+          {
+            "node": "Store Vector in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Document Embedding": {
+      "main": [
+        [
+          {
+            "node": "Merge Chunk + Embedding",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Supabase(Log Error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunk Document": {
+      "main": [
+        [
+          {
+            "node": "Generate Document Embedding",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Chunk + Embedding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Chunk + Embedding": {
+      "main": [
+        [
+          {
+            "node": "Store Vector in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Vector in Supabase": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Success": {
+      "main": [
+        [
+          {
+            "node": "Format Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ec2f4c4a-02ee-41be-9c9b-772449fd7812",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "65009f894cb80909d7d8d00a009243cc2121ce7f274390314aab1db0f3eb5fdb"
+  },
+  "nodeGroups": [],
+  "id": "gCj8oaTg9xqkvEXq",
+  "tags": []
+}
