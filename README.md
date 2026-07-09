@@ -158,7 +158,7 @@ Respond to Webhook
 
 ---
 
-# Example API Response
+# Example API Response (en)
 
 ```json
 {
@@ -167,15 +167,32 @@ Respond to Webhook
   "answer":"Employees are entitled to 30 calendar days of paid annual leave after completing one year of continuous service.",
   "sources":[
       {
-          "id":"5b4c9a08...",
-          "similarity":0.82
-      }
+      "source": "FutureTech Employee Handbook 2026.pdf",
+      "page": 14,
+      "similarity": 0.891
+    }
   ],
   "timestamp":"2026-07-09T15:13:28Z"
 }
 ```
 
----
+# Example API Response (ar)
+
+```json
+{
+  "question": "كم يوم إجازة سنوية؟",
+  "language": "ar",
+  "answer": "يحق للموظف الحصول على 30 يوماً تقويمياً إجازة سنوية مدفوعة الأجر بعد إكمال سنة خدمة متواصلة...",
+  "sources": [
+    {
+      "source": "FutureTech Employee Handbook 2026.pdf",
+      "page": 14,
+      "similarity": 0.891
+    }
+  ],
+  "timestamp": "2026-07-09T15:15:28Z"
+}
+```
 
 # Database Schema
 
