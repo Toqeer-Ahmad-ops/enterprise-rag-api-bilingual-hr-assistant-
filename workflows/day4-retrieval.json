@@ -1,0 +1,373 @@
+{
+  "name": "Enterprise RAG API – Day 4 Retrieval Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "38b611c5-7df0-4e20-976e-4bd47d5221fd",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://yourdomain.ae"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "117a8335-4e86-461a-819c-aeed2c89d52b",
+      "name": "Webhook",
+      "webhookId": "38b611c5-7df0-4e20-976e-4bd47d5221fd",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DXs2yQA5l1AZT0mH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1/models/gemini-embedding-2:embedContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"models/gemini-embedding-2\",\n  \"content\": {\n    \"parts\": [\n      {\n        \"text\": \"{{ $json.body.question }}\"\n      }\n    ]\n  },\n  \"taskType\": \"RETRIEVAL_QUERY\",\n  \"outputDimensionality\": 768\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        256,
+        0
+      ],
+      "id": "abcc02e5-52b9-4bc5-a64c-acbc6bd510f1",
+      "name": "Generate Query Embedding",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "V7LLvidI6N7DOpcZ",
+          "name": "Gemini Toqeer Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://pnafbhfijmaaxsertzof.supabase.co/rest/v1/rpc/match_documents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query_embedding",
+              "value": "={{ $('Validate Query Embedding').item.json.embedding }}"
+            },
+            {
+              "name": "match_count",
+              "value": "5"
+            },
+            {
+              "name": "filter",
+              "value": "{}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        720,
+        0
+      ],
+      "id": "5771a257-b20d-4171-891f-972ea1a5ecc1",
+      "name": "Retrieve Similar Chunks",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "uTK204BB91XD7iWO",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\nJSON.stringify({\n  contents: [\n    {\n      parts: [\n        {\n          text: `You are an AI HR Assistant for FutureTech Solutions LLC.\n\nRules:\n- Answer ONLY using the retrieved context provided below.\n- Do NOT use outside knowledge.\n- If the answer is not present in the context, reply exactly:\n  \"I could not find this information in the company knowledge base.\"\n- Respond in the same language as the user's question.\n- Keep answers clear, professional, and concise.\n- Do not mention or reference information that is not contained in the context.\n\nQuestion:\n${$json.question}\n\nContext:\n${$json.context}`\n        }\n      ]\n    }\n  ]\n})\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "51711ae5-5dd0-4c20-8550-c6a7d3dc7b52",
+      "name": "Generate Grounded Answer",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "V7LLvidI6N7DOpcZ",
+          "name": "Gemini Toqeer Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nif (input.skip_llm) {\n return [{json: {\n question: input.question,\n language: input.language,\n answer: \"I could not find this information in the company knowledge base.\",\n sources: [],\n timestamp: new Date().toISOString()\n }}];\n}\nconst answer = $json.candidates[0].content.parts[0].text;\nconst question = $('Build Retrieval Context').first().json.question;\nconst sources = $('Build Retrieval Context').first().json.sources;\nconst language = $('Build Retrieval Context').first().json.language;\n\nreturn [\n {\n json:{\n question,\n language,\n answer,\n sources,\n timestamp: new Date().toISOString()\n }\n }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1312,
+        0
+      ],
+      "id": "6583bc5b-ce9b-462e-9399-249a67335177",
+      "name": "Format API Response"
+    },
+    {
+      "parameters": {
+        "content": "# Enterprise RAG API\n\n## Day 4 - Retrieval\n\n### Stack\n\n• Gemini Embedding 2\n• Gemini 2.5 Flash\n• Supabase pgvector\n• Semantic Search\n• Grounded Answers",
+        "height": 320,
+        "width": 208,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -288,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "8b0298a4-7f97-4473-967f-03157004ee2e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Receives POST\n\n## Input\n\nquestion\n\n## Returns\n\nGrounded answer",
+        "height": 288,
+        "width": 176,
+        "color": "#FFFFFF"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -336
+      ],
+      "typeVersion": 1,
+      "id": "ce4377cd-5dd9-47ec-a564-857f2e36ca10",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Query Embedding\n\n## Gemini Embedding 2\n\n• Multilingual\n• Retrieval vectors",
+        "height": 192,
+        "width": 208,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        -208
+      ],
+      "typeVersion": 1,
+      "id": "b4856451-f613-422c-8565-458a80b0eaf7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Semantic Search\n\n## Top-K similarity\n\nReturns\nrelevant chunks",
+        "height": 192,
+        "width": 192,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -208
+      ],
+      "typeVersion": 1,
+      "id": "083c168a-16f5-4861-a480-30035b4561f8",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Grounded Generation\n\nGemini 2.5 Flash\n\nAnswers ONLY using\n\nretrieved context.",
+        "height": 192,
+        "width": 224,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1136,
+        -208
+      ],
+      "typeVersion": 1,
+      "id": "81fe2c2a-6924-401a-a8e6-83132a87448d",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "# API Response\n\n## Returns\n\n✓ answer\n✓ sources\n✓ language\n✓ timestamp",
+        "height": 272,
+        "width": 166,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "6e40a434-ae9e-46fc-95e4-373dbd407660",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const embedding = $json.embedding;\nif (!embedding?.values || embedding.values.length!== 768) {\n throw new Error('Invalid embedding dimension. Expected 768, got ${embedding?.value?.length ?? 0}'\n);\n}\nreturn [{\n  json:{\n embedding_length: embedding.values.length,\n embedding: embedding.values,\n  },\n },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        0
+      ],
+      "id": "d3fc72eb-1f31-4807-b186-6625b4fa37b0",
+      "name": "Validate Query Embedding"
+    },
+    {
+      "parameters": {
+        "jsCode": "const docs = $json.body;\nif (!docs || docs.length === 0) {\n return [{json: {question: $('Webhook').first().json.body.question, context: '', sources: [], skip_llm: true}}];\n}\nconst context = docs\n.map((doc, index) => {\n return `Source ${index + 1} (similarity: ${doc.similarity.toFixed(3)}):\\n${doc.content}`;\n })\n.join('\\n\\n');\n\nreturn [\n {\n json: {\n question: $('Webhook').first().json.body.question,\n context,\n sources: docs.map(doc => ({\n id: doc.id,\n similarity: doc.similarity\n })),\nlanguage: docs[0].language, \nskip_llm: docs[0].similarity < 0.7\n }\n }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        0
+      ],
+      "id": "561f04ef-7bdb-40aa-bc92-20763c6db7d7",
+      "name": "Build Retrieval Context"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1536,
+        0
+      ],
+      "id": "6f13acc4-7f9f-4901-b55d-9c3492a4f440",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Generate Query Embedding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Query Embedding": {
+      "main": [
+        [
+          {
+            "node": "Validate Query Embedding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Similar Chunks": {
+      "main": [
+        [
+          {
+            "node": "Build Retrieval Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Grounded Answer": {
+      "main": [
+        [
+          {
+            "node": "Format API Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Query Embedding": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Similar Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Retrieval Context": {
+      "main": [
+        [
+          {
+            "node": "Generate Grounded Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format API Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3dadacd2-4951-497d-82a7-58d22f75a8f7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "65009f894cb80909d7d8d00a009243cc2121ce7f274390314aab1db0f3eb5fdb"
+  },
+  "nodeGroups": [],
+  "id": "3CLBMqOvqWKhZgZK",
+  "tags": []
+}
