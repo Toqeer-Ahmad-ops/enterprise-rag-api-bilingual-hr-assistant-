@@ -54,7 +54,7 @@ Receives a user question, performs semantic similarity search, builds retrieval 
 # Architecture
 
 <p align="center">
-  <img src="screenshots/architecture.png" alt="RAG Architecture" width="100%" />
+  <img src="screenshots/architecture.jpeg" alt="RAG Architecture" width="100%" />
 </p>
 
 <details>
