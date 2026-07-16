@@ -51,24 +51,23 @@ Receives a user question, performs semantic similarity search, builds retrieval 
 
 ---
 
-# Architecture
+# 🏗 Architecture
 
 <p align="center">
-  <img src="screenshots/architecture.jpeg" alt="RAG Architecture" width="100%" />
+  <img src="docs/architecture.jpeg" alt="Enterprise Bilingual RAG Architecture" width="100%" />
 </p>
 
 <details>
-<summary>📄 View Mermaid Source (for desktop)</summary>
+<summary>📄 View Mermaid Source</summary>
 
 ```mermaid
 flowchart TD
-    subgraph Ingestion["📥 Ingestion"]
-        A[HR Documents] --> B[Webhook] --> C[Chunk Document] --> D[Gemini Embedding 2] --> E[(Supabase pgvector)]
-    end
-    subgraph Retrieval["🔍 Retrieval"]
-        F[User Question] --> G[Webhook] --> H[Gemini Embedding 2] --> I[Semantic Search] --> J[Build Context] --> K[Gemini 2.5 Flash] --> L[Grounded Answer]
-    end
-    E <--> I
+    A[PDF Upload] --> B[Extract Text From PDF] --> C[OCR Cleaning] --> D[Chunk Documents<br/>1000 / 200] --> E[Gemini Embedding 2<br/>768] --> F[(Supabase pgvector Database)]
+    F --- G[User Question]
+    G --> H[Detect Language<br/>EN / AR] --> I[Gemini Query Embedding] --> J[Metadata-Aware Vector Search] --> K[Build Retrieval Context] --> L[Gemini 2.5 Flash] --> M[Grounded Final Answer] --> N[Log Query + Retrieval Metrics]
+
+    style F fill:#1a1a2e,stroke:#3b82f6,stroke-width:2px
+    style J fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px
 ```
 
 ---
