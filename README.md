@@ -51,7 +51,7 @@ Receives a user question, performs semantic similarity search, builds retrieval 
 
 ---
 
-## Architecture
+# Architecture
 
 ```mermaid
 flowchart TD
@@ -73,8 +73,10 @@ flowchart TD
     end
 
     E <--> I
+```
 
 ---
+
 
 
 # Technology Stack
