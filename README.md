@@ -53,27 +53,22 @@ Receives a user question, performs semantic similarity search, builds retrieval 
 
 # Architecture
 
+<p align="center">
+  <img src="assets/architecture.png" alt="RAG Architecture" width="100%" />
+</p>
+
+<details>
+<summary>📄 View Mermaid Source (for desktop)</summary>
+
 ```mermaid
 flowchart TD
-
-    subgraph Ingestion["📥 Ingestion Pipeline"]
-        A[HR Documents] --> B[Webhook]
-        B --> C[Chunk Document]
-        C --> D[Gemini Embedding 2]
-        D --> E[(Supabase pgvector)]
+    subgraph Ingestion["📥 Ingestion"]
+        A[HR Documents] --> B[Webhook] --> C[Chunk Document] --> D[Gemini Embedding 2] --> E[(Supabase pgvector)]
     end
-
-    subgraph Retrieval["🔍 Retrieval Pipeline"]
-        F[User Question] --> G[Webhook]
-        G --> H[Gemini Embedding 2]
-        H --> I[Semantic Search]
-        I --> J[Build Context]
-        J --> K[Gemini 2.5 Flash]
-        K --> L[Grounded Answer]
+    subgraph Retrieval["🔍 Retrieval"]
+        F[User Question] --> G[Webhook] --> H[Gemini Embedding 2] --> I[Semantic Search] --> J[Build Context] --> K[Gemini 2.5 Flash] --> L[Grounded Answer]
     end
-
     E <--> I
-```
 
 ---
 
