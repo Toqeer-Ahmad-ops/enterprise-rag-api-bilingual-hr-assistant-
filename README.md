@@ -69,6 +69,7 @@ flowchart TD
         F[User Question] --> G[Webhook] --> H[Gemini Embedding 2] --> I[Semantic Search] --> J[Build Context] --> K[Gemini 2.5 Flash] --> L[Grounded Answer]
     end
     E <--> I
+```
 
 ---
 
